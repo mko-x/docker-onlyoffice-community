@@ -1,13 +1,31 @@
 ARG UBUNTU_VERSION="bionic"
-FROM ubuntu:${UBUNTU_VERSION}
+FROM ubuntu:"${UBUNTU_VERSION}"
 
 # default config
 ARG DEBIAN_FRONTEND=noninteractive
-ENV LANG=en_US.UTF-8 \
-    LANGUAGE=en_US:en \
-    LC_ALL=en_US.UTF-8
+# config deps
+ARG ELASTIC_VERSION="6.7.1"
+ARG NODE_VERSION="11"
+
+# config communityserver release
+ARG RELEASE_DATE="2018-10-26"
+ARG RELEASE_DATE_SIGN=""
+ARG COM_SRV_VERSION="9.6.4"
+ARG COM_SRV_BUILD="736_all"
+ARG SOURCE_REPO_URL="https://downloads.sourceforge.net/project/teamlab/ONLYOFFICE_CommunityServer/v9.6/binaries/onlyoffice-communityserver_${COM_SRV_VERSION}.${COM_SRV_BUILD}.deb"
+
+LABEL onlyoffice.community.release-date="${RELEASE_DATE}" \
+      onlyoffice.community.version="${VERSION}" \
+      onlyoffice.community.release-date.sign="${RELEASE_DATE_SIGN}" \
+      maintainer="mko-x <code@m-ko.de>"
+
+ENV LANGUAGE="en_US:en"
+ENV	LC_ALL="en_US.UTF-8"
+ENV	LANG="en_US.UTF-8"
+ENV UBUNTU_VERSION="${UBUNTU_VERSION:-bionic}"
     
-RUN apt-get -y update && \
+RUN echo "Build with ubuntu version: ${UBUNTU_VERSION}" && \
+    apt-get -y update && \
     apt-get -yq install gnupg2 nano && \
     apt-get install -yq sudo locales && \
     addgroup --system --gid 107 onlyoffice && \
@@ -21,11 +39,6 @@ RUN apt-get -y update && \
     locale-gen en_US.UTF-8 && \
     apt-get -y update && \
     apt-get install -yq software-properties-common wget curl cron rsyslog
-
-# configu
-ARG ELASTIC_VERSION="6.7.1"
-ARG NODE_VERSION="11"
-
 
 
 RUN wget http://nginx.org/keys/nginx_signing.key && \
@@ -50,17 +63,7 @@ RUN wget http://nginx.org/keys/nginx_signing.key && \
     apt-get install -yq mono-webserver-hyperfastcgi && \    
     rm -rf /var/lib/apt/lists/*
 
-# config communityserver release
-ARG RELEASE_DATE="2018-10-26"
-ARG RELEASE_DATE_SIGN=""
-ARG COM_SRV_VERSION="9.6.4"
-ARG COM_SRV_BUILD="736_all"
-ARG SOURCE_REPO_URL="https://downloads.sourceforge.net/project/teamlab/ONLYOFFICE_CommunityServer/v9.6/binaries/onlyoffice-communityserver_${COM_SRV_VERSION}.${COM_SRV_BUILD}.deb"
 
-LABEL onlyoffice.community.release-date="${RELEASE_DATE}" \
-      onlyoffice.community.version="${VERSION}" \
-      onlyoffice.community.release-date.sign="${RELEASE_DATE_SIGN}" \
-      maintainer="mko-x <code@m-ko.de>"
 
 RUN wget "${SOURCE_REPO_URL}" -o "onlyoffice-communityserver_${VERSION}.${BUILD}}.deb" && \
     apt install -f "onlyoffice-communityserver_${VERSION}.${BUILD}}.deb"
