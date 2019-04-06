@@ -55,18 +55,19 @@ RUN wget http://nginx.org/keys/nginx_signing.key && \
     add-apt-repository -y ppa:chris-lea/redis-server && \
     add-apt-repository -y ppa:jonathonf/ffmpeg-4 && \
     curl -sL https://deb.nodesource.com/setup_${NODE_VERSION}.x | sudo -E bash - && \
-    sudo apt-get install -y nodejs && \
-    apt-get -y update && \
+    sudo apt-get install -y nodejs
+
+RUN apt-get -y update && \
     apt-get install -yq nginx mono-complete ca-certificates-mono && \
     echo "#!/bin/sh\nexit 0" > /usr/sbin/policy-rc.d && \
     apt-get install -yq dumb-init python-certbot-nginx htop nano dnsutils redis-server python3-pip multiarch-support iproute2 ffmpeg && \
-    apt-get install -yq mono-webserver-hyperfastcgi && \    
-    rm -rf /var/lib/apt/lists/*
-
+    apt-get install -yq mono-webserver-hyperfastcgi   
+    
 
 
 RUN wget "${SOURCE_REPO_URL}" -o "onlyoffice-communityserver_${VERSION}.${BUILD}}.deb" && \
-    apt install -f "onlyoffice-communityserver_${VERSION}.${BUILD}}.deb"
+    apt install -fyq "onlyoffice-communityserver_${VERSION}.${BUILD}}.deb" && \
+    rm -rf /var/lib/apt/lists/*
 
 ADD config /app/onlyoffice/config/
 ADD assets /app/onlyoffice/assets/
